@@ -330,3 +330,115 @@ class CatalogoTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['status'], 404)
         self.assertEqual(response.data['error'], 'Recurso no encontrado.')
+
+    # --------------------------------------------------------------------------
+    # 7. AUDITORÍA FASE 3.6: FILTROS WEB, BÚSQUEDA Y CONTROL DE PROTECT
+    # --------------------------------------------------------------------------
+    def test_21_filtro_web_categoria_por_id(self):
+        """21. Filtro web de categoría funciona con ID numérico (?categoria=1)."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'categoria': str(self.cat_cpu.id)})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertTrue(all(p.categoria_id == self.cat_cpu.id for p in prods))
+        self.assertIn(self.prod_ryzen, prods)
+        self.assertNotIn(self.prod_rtx, prods)
+
+    def test_22_filtro_web_categoria_por_slug(self):
+        """22. Filtro web de categoría funciona con slug (?categoria=procesadores)."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'categoria': 'procesadores'})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertTrue(all(p.categoria.slug == 'procesadores' for p in prods))
+        self.assertIn(self.prod_ryzen, prods)
+        self.assertNotIn(self.prod_rtx, prods)
+
+    def test_23_filtro_web_marca_por_id(self):
+        """23. Filtro web de marca funciona con ID numérico (?marca=2)."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'marca': str(self.marca_asus.id)})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertTrue(all(p.marca_id == self.marca_asus.id for p in prods))
+        self.assertIn(self.prod_rtx, prods)
+        self.assertNotIn(self.prod_ryzen, prods)
+
+    def test_24_filtro_web_marca_por_slug(self):
+        """24. Filtro web de marca funciona con slug (?marca=asus)."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'marca': 'asus'})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertTrue(all(p.marca.slug == 'asus' for p in prods))
+        self.assertIn(self.prod_rtx, prods)
+        self.assertNotIn(self.prod_ryzen, prods)
+
+    def test_25_busqueda_web_por_marca(self):
+        """25. Búsqueda web por nombre de marca (?q=ASUS) retorna productos de esa marca."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'q': 'ASUS'})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertIn(self.prod_rtx, prods)
+        self.assertNotIn(self.prod_ryzen, prods)
+
+    def test_26_busqueda_web_por_categoria(self):
+        """26. Búsqueda web por nombre de categoría (?q=Procesadores) retorna productos de esa categoría."""
+        url = reverse('catalogo')
+        response = self.client.get(url, {'q': 'Procesadores'})
+        self.assertEqual(response.status_code, 200)
+        prods = list(response.context['productos'])
+        self.assertIn(self.prod_ryzen, prods)
+        self.assertNotIn(self.prod_rtx, prods)
+
+    def test_27_admin_elimina_categoria_vacia(self):
+        """27. Administrador puede eliminar una categoría sin productos asociados (HTTP 204)."""
+        cat_vacia = Categoria.objects.create(nombre='Fuentes de Poder', slug='fuentes-poder')
+        url = reverse('categoria-detail', kwargs={'pk': cat_vacia.pk})
+        response = self.client_admin.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Categoria.objects.filter(pk=cat_vacia.pk).exists())
+
+    def test_28_admin_no_elimina_categoria_usada(self):
+        """28. Administrador recibe HTTP 409 Conflict si intenta eliminar categoría con productos asociados."""
+        url = reverse('categoria-detail', kwargs={'pk': self.cat_cpu.pk})
+        response = self.client_admin.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data.get('status'), 409)
+        self.assertIn('No se puede eliminar la categoría porque contiene productos asociados.', response.data.get('error', ''))
+        self.assertTrue(Categoria.objects.filter(pk=self.cat_cpu.pk).exists())
+
+    def test_29_admin_elimina_marca_vacia(self):
+        """29. Administrador puede eliminar una marca sin productos asociados (HTTP 204)."""
+        marca_vacia = Marca.objects.create(nombre='Corsair', slug='corsair')
+        url = reverse('marca-detail', kwargs={'pk': marca_vacia.pk})
+        response = self.client_admin.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Marca.objects.filter(pk=marca_vacia.pk).exists())
+
+    def test_30_admin_no_elimina_marca_usada(self):
+        """30. Administrador recibe HTTP 409 Conflict si intenta eliminar marca con productos asociados."""
+        url = reverse('marca-detail', kwargs={'pk': self.marca_amd.pk})
+        response = self.client_admin.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data.get('status'), 409)
+        self.assertIn('No se puede eliminar la marca porque contiene productos asociados.', response.data.get('error', ''))
+        self.assertTrue(Marca.objects.filter(pk=self.marca_amd.pk).exists())
+
+    def test_31_cliente_no_puede_eliminar_categoria(self):
+        """31. Usuario con rol Cliente no tiene permisos para eliminar categorías (HTTP 403)."""
+        cat_vacia = Categoria.objects.create(nombre='Periféricos', slug='perifericos')
+        url = reverse('categoria-detail', kwargs={'pk': cat_vacia.pk})
+        response = self.client_cliente.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Categoria.objects.filter(pk=cat_vacia.pk).exists())
+
+    def test_32_cliente_no_puede_eliminar_marca(self):
+        """32. Usuario con rol Cliente no tiene permisos para eliminar marcas (HTTP 403)."""
+        marca_vacia = Marca.objects.create(nombre='Kingston', slug='kingston')
+        url = reverse('marca-detail', kwargs={'pk': marca_vacia.pk})
+        response = self.client_cliente.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Marca.objects.filter(pk=marca_vacia.pk).exists())
+

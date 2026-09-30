@@ -28,6 +28,9 @@ urlpatterns = [
     # Módulo de Catálogo (API REST /api/productos/, /api/categorias/, /api/marcas/ + Vistas Web)
     path('', include('apps.catalogo.urls')),
 
+    # Módulo de Carro de Compras Persistente (API REST /api/carro/ + Vistas Web /carro/)
+    path('', include('apps.carro.urls')),
+
     # Documentación Swagger / OpenAPI PRIVADA (Restringida a Administradores)
     path('api/schema/', ProtectedSpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', ProtectedSpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

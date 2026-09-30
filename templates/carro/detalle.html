@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Carro de Compras — PupeFactory{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 0 3rem;">
+    <!-- Encabezado de la página -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.6rem;">
+            <svg class="icon" viewBox="0 0 24 24" style="color: var(--brand);">
+                <circle cx="8" cy="21" r="1"></circle>
+                <circle cx="19" cy="21" r="1"></circle>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+            </svg>
+            <span>Mi Carro de Compras</span>
+        </h1>
+
+        {% if items %}
+            <form method="post" action="{% url 'carro_vaciar' %}" onsubmit="return confirm('¿Estás seguro de que deseas vaciar tu carro?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; color: var(--danger); border-color: rgba(214,69,69,0.3);">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span>Vaciar Carro</span>
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if items %}
+        <!-- Layout a 2 columnas: Lista de productos y Resumen de Compra -->
+        <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem; align-items: start;">
+            <!-- Columna izquierda: Tabla / Lista de Ítems -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Productos Seleccionados ({{ carrito.total_items }} unidades)
+                </div>
+
+                <div style="divide-y: 1px solid var(--border);">
+                    {% for item in items %}
+                        <div style="display: grid; grid-template-columns: 90px 1fr auto; gap: 1.25rem; padding: 1.25rem; border-bottom: 1px solid var(--border); align-items: center;">
+                            <!-- Imagen Miniatura -->
+                            <div style="width: 90px; height: 90px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; padding: 0.25rem;">
+                                {% if item.producto.get_imagen_url %}
+                                    <img src="{{ item.producto.get_imagen_url }}" alt="{{ item.producto.nombre }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                {% else %}
+                                    <svg class="icon" style="color: var(--text-muted); width: 2.5rem; height: 2.5rem;" viewBox="0 0 24 24">
+                                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                {% endif %}
+                            </div>
+
+                            <!-- Información del Producto -->
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+                                    {{ item.producto.marca.nombre }}
+                                </div>
+                                <h2 style="font-size: 1rem; font-weight: 600; margin: 0.15rem 0 0.35rem;">
+                                    <a href="{% url 'producto_detalle' item.producto.id %}" style="color: var(--text); text-decoration: none;">
+                                        {{ item.producto.nombre }}
+                                    </a>
+                                </h2>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                    SKU: <code>{{ item.producto.sku }}</code>
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 600; color: var(--brand); margin-top: 0.4rem;">
+                                    ${{ item.producto.precio|floatformat:0 }} c/u
+                                </div>
+                            </div>
+
+                            <!-- Controles de Cantidad, Subtotal y Eliminar -->
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+                                <!-- Subtotal del ítem -->
+                                <div style="font-size: 1.15rem; font-weight: 700; color: var(--text);">
+                                    ${{ item.subtotal|floatformat:0 }}
+                                </div>
+
+                                <!-- Stepper de cantidad (+ / -) -->
+                                <div style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: #fff;">
+                                    <form method="post" action="{% url 'carro_actualizar' item.producto.id %}" style="margin:0;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="decrementar">
+                                        <button type="submit" style="padding: 0.3rem 0.65rem; background: none; border: none; cursor: pointer; color: var(--text); font-weight: 700; font-size: 1rem;" title="Disminuir cantidad">
+                                            &minus;
+                                        </button>
+                                    </form>
+
+                                    <span style="min-width: 32px; text-align: center; font-weight: 600; font-size: 0.9rem; padding: 0 0.25rem;">
+                                        {{ item.cantidad }}
+                                    </span>
+
+                                    <form method="post" action="{% url 'carro_actualizar' item.producto.id %}" style="margin:0;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="incrementar">
+                                        <button type="submit" style="padding: 0.3rem 0.65rem; background: none; border: none; cursor: pointer; color: var(--text); font-weight: 700; font-size: 1rem;" title="Aumentar cantidad">
+                                            &plus;
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Botón Eliminar ítem individual -->
+                                <form method="post" action="{% url 'carro_eliminar' item.producto.id %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background: none; border: none; color: var(--danger); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; padding: 0;">
+                                        <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        <span>Quitar</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Columna derecha: Resumen de Compra -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; position: sticky; top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                    Resumen del Pedido
+                </h3>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--text-muted);">
+                    <span>Total de unidades:</span>
+                    <strong style="color: var(--text);">{{ carrito.total_items }} un.</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--text-muted);">
+                    <span>Subtotal:</span>
+                    <strong style="color: var(--text);">${{ carrito.total|floatformat:0 }}</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.95rem; color: var(--text-muted);">
+                    <span>Despacho:</span>
+                    <span style="color: var(--success); font-weight: 600;">Gratis</span>
+                </div>
+
+                <div style="border-top: 2px dashed var(--border); padding-top: 1rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem;">
+                    <span style="font-size: 1.05rem; font-weight: 600; color: var(--text);">Total a Pagar:</span>
+                    <span style="font-size: 1.5rem; font-weight: 800; color: var(--brand);">${{ carrito.total|floatformat:0 }}</span>
+                </div>
+
+                <!-- Botón de checkout deshabilitado para Fase 4 -->
+                <button disabled class="btn-secondary" style="width: 100%; padding: 0.85rem; font-size: 1rem; opacity: 0.65; cursor: not-allowed; margin-bottom: 0.75rem; text-align: center;" title="El checkout y pago se implementarán en Fase 5">
+                    <span>Continuar al Pago (Fase 5)</span>
+                </button>
+
+                <a href="{% url 'catalogo' %}" class="btn-brand" style="display: block; width: 100%; padding: 0.75rem; font-size: 0.9rem; text-align: center; text-decoration: none; border-radius: var(--radius-sm);">
+                    Seguir Comprando
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Estado Vacío -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3.5rem 1.5rem; text-align: center; max-width: 600px; margin: 2rem auto;">
+            <svg class="icon" viewBox="0 0 24 24" style="width: 4rem; height: 4rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.6;">
+                <circle cx="8" cy="21" r="1"></circle>
+                <circle cx="19" cy="21" r="1"></circle>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+            </svg>
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text);">
+                Tu carro de compras está vacío
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                Aún no has agregado productos a tu carro. Explora nuestro catálogo de hardware y componentes.
+            </p>
+            <a href="{% url 'catalogo' %}" class="btn-brand" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; text-decoration: none; font-size: 0.95rem; border-radius: var(--radius-sm);">
+                <svg class="icon icon-sm" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Explorar Catálogo de Productos</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

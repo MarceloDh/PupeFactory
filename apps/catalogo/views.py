@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.db.models import Q, ProtectedError
 
 from apps.catalogo.models import Categoria, Marca, Producto
 from apps.catalogo.serializers import CategoriaSerializer, MarcaSerializer, ProductoSerializer
@@ -28,6 +29,27 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     search_fields = ['nombre', 'slug']
     ordering = ['nombre']
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.productos.exists():
+            return Response(
+                {
+                    "error": "No se puede eliminar la categoría porque contiene productos asociados.",
+                    "status": status.HTTP_409_CONFLICT
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(
+                {
+                    "error": "No se puede eliminar la categoría porque contiene productos asociados.",
+                    "status": status.HTTP_409_CONFLICT
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
 
 class MarcaViewSet(viewsets.ModelViewSet):
     """
@@ -40,6 +62,27 @@ class MarcaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     search_fields = ['nombre', 'slug']
     ordering = ['nombre']
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.productos.exists():
+            return Response(
+                {
+                    "error": "No se puede eliminar la marca porque contiene productos asociados.",
+                    "status": status.HTTP_409_CONFLICT
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(
+                {
+                    "error": "No se puede eliminar la marca porque contiene productos asociados.",
+                    "status": status.HTTP_409_CONFLICT
+                },
+                status=status.HTTP_409_CONFLICT
+            )
 
 
 class ProductoViewSet(viewsets.ModelViewSet):
@@ -98,6 +141,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
 class CatalogoListView(ListView):
     """
     Vista web funcional para listar y filtrar el catálogo público de productos.
+    Soporta búsqueda multi-campo (nombre, SKU, marca, categoría) y filtros por ID o slug.
     """
     model = Producto
     template_name = 'catalogo/productos.html'
@@ -107,38 +151,58 @@ class CatalogoListView(ListView):
     def get_queryset(self):
         qs = Producto.objects.filter(activo=True).select_related('categoria', 'marca')
         
-        # Filtro de búsqueda por texto
+        # Filtro de búsqueda por texto (nombre, SKU, marca, categoría)
         q = self.request.GET.get('q')
         if q:
-            qs = qs.filter(nombre__icontains=q) | qs.filter(sku__icontains=q)
+            q_clean = q.strip()
+            qs = qs.filter(
+                Q(nombre__icontains=q_clean)
+                | Q(sku__icontains=q_clean)
+                | Q(marca__nombre__icontains=q_clean)
+                | Q(categoria__nombre__icontains=q_clean)
+            )
             
-        # Filtro por categoría
-        categoria_id = self.request.GET.get('categoria')
-        if categoria_id and categoria_id.isdigit():
-            qs = qs.filter(categoria_id=int(categoria_id))
+        # Filtro por categoría (acepta ID numérico o slug/nombre)
+        categoria = self.request.GET.get('categoria')
+        if categoria:
+            val_cat = str(categoria).strip()
+            if val_cat.isdigit():
+                qs = qs.filter(categoria_id=int(val_cat))
+            else:
+                qs = qs.filter(
+                    Q(categoria__slug__iexact=val_cat) | Q(categoria__nombre__iexact=val_cat)
+                )
             
-        # Filtro por marca
-        marca_id = self.request.GET.get('marca')
-        if marca_id and marca_id.isdigit():
-            qs = qs.filter(marca_id=int(marca_id))
+        # Filtro por marca (acepta ID numérico o slug/nombre)
+        marca = self.request.GET.get('marca')
+        if marca:
+            val_marca = str(marca).strip()
+            if val_marca.isdigit():
+                qs = qs.filter(marca_id=int(val_marca))
+            else:
+                qs = qs.filter(
+                    Q(marca__slug__iexact=val_marca) | Q(marca__nombre__iexact=val_marca)
+                )
             
         # Filtro por disponibilidad
         disponible = self.request.GET.get('disponible')
-        if disponible == '1' or disponible == 'true':
-            qs = qs.filter(stock__gt=0)
-        elif disponible == '0' or disponible == 'false':
-            qs = qs.filter(stock=0)
+        if disponible:
+            disp_clean = str(disponible).strip().lower()
+            if disp_clean in ('1', 'true', 'si', 'yes'):
+                qs = qs.filter(stock__gt=0)
+            elif disp_clean in ('0', 'false', 'no'):
+                qs = qs.filter(stock=0)
             
         return qs.order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = Categoria.objects.all()
-        context['marcas'] = Marca.objects.all()
-        context['current_q'] = self.request.GET.get('q', '')
-        context['current_categoria'] = self.request.GET.get('categoria', '')
-        context['current_marca'] = self.request.GET.get('marca', '')
-        context['current_disponible'] = self.request.GET.get('disponible', '')
+        context['categorias'] = Categoria.objects.all().order_by('nombre')
+        context['marcas'] = Marca.objects.all().order_by('nombre')
+        context['current_q'] = self.request.GET.get('q', '').strip()
+        context['current_categoria'] = self.request.GET.get('categoria', '').strip()
+        context['current_marca'] = self.request.GET.get('marca', '').strip()
+        context['current_disponible'] = self.request.GET.get('disponible', '').strip()
         return context
 
 

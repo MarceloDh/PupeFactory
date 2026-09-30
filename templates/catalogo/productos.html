@@ -34,7 +34,7 @@
                 <select name="categoria" id="filter-cat" class="filter-select">
                     <option value="">Todas las categorías</option>
                     {% for cat in categorias %}
-                        <option value="{{ cat.id }}" {% if current_categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ cat.slug }}" {% if current_categoria == cat.id|stringformat:"s" or current_categoria == cat.slug %}selected{% endif %}>
                             {{ cat.nombre }}
                         </option>
                     {% endfor %}
@@ -47,7 +47,7 @@
                 <select name="marca" id="filter-marca" class="filter-select">
                     <option value="">Todas las marcas</option>
                     {% for m in marcas %}
-                        <option value="{{ m.id }}" {% if current_marca == m.id|stringformat:"s" %}selected{% endif %}>
+                        <option value="{{ m.slug }}" {% if current_marca == m.id|stringformat:"s" or current_marca == m.slug %}selected{% endif %}>
                             {{ m.nombre }}
                         </option>
                     {% endfor %}

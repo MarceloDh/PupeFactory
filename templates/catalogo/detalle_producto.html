@@ -72,14 +72,23 @@
 
             <div>
                 {% if producto.tiene_stock %}
-                    <button class="btn-brand" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-sm);">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <circle cx="8" cy="21" r="1"></circle>
-                            <circle cx="19" cy="21" r="1"></circle>
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                        </svg>
-                        <span>Agregar al Carrito</span>
-                    </button>
+                    <form method="post" action="{% url 'carro_agregar' producto.id %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.85rem;">
+                            <label for="input-cantidad" style="font-size: 0.875rem; font-weight: 500; color: var(--text);">Cantidad:</label>
+                            <input type="number" id="input-cantidad" name="cantidad" value="1" min="1" max="{{ producto.stock }}"
+                                style="width: 75px; padding: 0.45rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; text-align: center; font-weight: 600;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">(Máx. {{ producto.stock }} un.)</span>
+                        </div>
+                        <button type="submit" class="btn-brand" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-sm);">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <circle cx="8" cy="21" r="1"></circle>
+                                <circle cx="19" cy="21" r="1"></circle>
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                            </svg>
+                            <span>Agregar al Carrito</span>
+                        </button>
+                    </form>
                     <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 0.6rem;">
                         Despacho inmediato a todo Chile
                     </p>

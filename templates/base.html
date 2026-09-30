@@ -90,14 +90,14 @@
                 {% endif %}
 
                 <!-- Carrito de Compras -->
-                <a href="{% url 'catalogo' %}" class="action-cart" title="Carro de Compras">
+                <a href="{% url 'carro_detalle' %}" class="action-cart" title="Carro de Compras">
                     <svg class="icon icon-sm" viewBox="0 0 24 24">
                         <circle cx="8" cy="21" r="1"></circle>
                         <circle cx="19" cy="21" r="1"></circle>
                         <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
                     </svg>
                     <span>Carro</span>
-                    <span class="cart-count">0</span>
+                    <span class="cart-count" id="header-cart-count">{{ cart_total_items|default:0 }}</span>
                 </a>
             </div>
         </div>
@@ -145,8 +145,8 @@
             <div>
                 <strong>PupeFactory</strong> &copy; 2026 — Tienda de Hardware y Componentes PC
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
-                Todos los derechos reservados.
+            <div class="student-badge-group" id="footer-student-data">
+                <span>{{ ALUMNO_NOMBRE }}</span> &middot; <span>{{ ALUMNO_SECCION }}</span> &middot; <span>{{ ALUMNO_ANIO }}</span>
             </div>
         </div>
     </footer>

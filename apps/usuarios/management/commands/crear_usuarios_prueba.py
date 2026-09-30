@@ -19,8 +19,19 @@ class Command(BaseCommand):
         if not settings.DEBUG:
             raise CommandError("Operación bloqueada: Este comando solo puede ejecutarse en modo desarrollo (DEBUG=True).")
 
-        cliente_password = os.environ.get('CLIENTE_TEST_PASSWORD', 'Cliente123!')
-        admin_password = os.environ.get('ADMIN_TEST_PASSWORD', 'Admin123!')
+        cliente_password = os.environ.get('CLIENTE_TEST_PASSWORD')
+        if not cliente_password:
+            raise CommandError(
+                "Falta la variable de entorno obligatoria 'CLIENTE_TEST_PASSWORD'. "
+                "Configúrala en tu archivo .env antes de ejecutar este comando."
+            )
+
+        admin_password = os.environ.get('ADMIN_TEST_PASSWORD')
+        if not admin_password:
+            raise CommandError(
+                "Falta la variable de entorno obligatoria 'ADMIN_TEST_PASSWORD'. "
+                "Configúrala en tu archivo .env antes de ejecutar este comando."
+            )
 
         # 1. Crear / Actualizar Cliente de Prueba
         cliente, created = CustomUser.objects.get_or_create(

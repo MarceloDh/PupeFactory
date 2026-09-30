@@ -21,7 +21,7 @@ load_dotenv(BASE_DIR / '.env')
 # ==============================================================================
 SECRET_KEY = os.environ['SECRET_KEY']
 
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -92,6 +92,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 # Context processor obligatorio con los datos del alumno en footer
                 'apps.core.context_processors.footer_context',
+                # Context processor con contador dinámico del carro de compras
+                'apps.carro.context_processors.carro_context',
             ],
         },
     },
@@ -100,18 +102,28 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pupefactory.wsgi.application'
 
 # ==============================================================================
-# BASE DE DATOS: CONFIGURACIÓN NATIVA CON POSTGRESQL (SIN FALLBACK A SQLITE)
+# BASE DE DATOS: CONFIGURACIÓN NATIVA CON POSTGRESQL (CON SOPORTE SQLITE LOCAL)
 # ==============================================================================
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['DB_NAME'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': os.environ['DB_HOST'],
-        'PORT': os.environ['DB_PORT'],
+DB_ENGINE = os.environ.get('DB_ENGINE', 'postgresql').lower()
+
+if DB_ENGINE in ('sqlite', 'sqlite3'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'pupefactory_db'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
 
 # ==============================================================================
 # VALIDACIÓN DE CONTRASEÑAS

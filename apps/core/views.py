@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -65,7 +66,16 @@ class ProtectedSpectacularRedocView(SpectacularRedocView):
 
 def error_404_view(request, exception=None):
     """
-    Renderiza la plantilla 404.html personalizada de PupeFactory
-    cuando una ruta web no existe, sin mostrar trazas del servidor.
+    Manejador 404 unificado:
+    - Si la ruta inicia con '/api/', retorna JSON con formato de error estándar.
+    - Para el resto de rutas web, renderiza el template errors/404.html.
     """
+    if request.path.startswith('/api/'):
+        return JsonResponse(
+            {
+                "error": "Recurso no encontrado.",
+                "status": 404,
+            },
+            status=404
+        )
     return render(request, 'errors/404.html', status=404)
