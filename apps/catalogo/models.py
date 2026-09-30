@@ -79,6 +79,13 @@ class Producto(models.Model):
         null=True,
         verbose_name='Imagen del Producto'
     )
+    imagen_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='URL de Imagen Externa',
+        help_text='Enlace HTTP/HTTPS a imagen del producto si no se sube archivo local.'
+    )
     activo = models.BooleanField(
         default=True,
         verbose_name='¿Activo para la venta?',
@@ -108,3 +115,15 @@ class Producto(models.Model):
     @property
     def tiene_stock(self):
         return self.stock > 0
+
+    @property
+    def get_imagen_url(self):
+        """Retorna la URL local si existe, la URL remota externa o None."""
+        if self.imagen:
+            try:
+                return self.imagen.url
+            except Exception:
+                pass
+        if self.imagen_url:
+            return self.imagen_url
+        return None

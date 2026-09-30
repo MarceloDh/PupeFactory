@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ producto.nombre }} — PupeFactory{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 0 auto;">
+    <a href="{% url 'catalogo' %}" style="display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">
+        <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Volver al Catálogo</span>
+    </a>
+
+    <!-- FICHA TÉCNICA PRINCIPAL -->
+    <div class="detail-card">
+        <!-- Columna Izquierda: Imagen del Producto -->
+        <div class="detail-image-box">
+            {% if producto.get_imagen_url %}
+                <img src="{{ producto.get_imagen_url }}" alt="{{ producto.nombre }}">
+            {% else %}
+                <svg class="icon" style="width: 6rem; height: 6rem; color: #CBD5E1;" viewBox="0 0 24 24">
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+            {% endif %}
+        </div>
+
+        <!-- Columna Derecha: Información y Compra -->
+        <div class="detail-info">
+            <div>
+                <span class="detail-brand">{{ producto.marca.nombre }} · {{ producto.categoria.nombre }}</span>
+                <h1 class="detail-title">{{ producto.nombre }}</h1>
+
+                <div class="detail-meta">
+                    <p>Código SKU: <code style="background: #F3F4F6; padding: 0.15rem 0.4rem; border-radius: 4px;">{{ producto.sku }}</code></p>
+                    <p>Garantía oficial del fabricante</p>
+                </div>
+
+                <div class="detail-price-box">
+                    <span class="detail-price">${{ producto.precio|floatformat:0 }}</span>
+                    <span class="detail-price-tax">CLP (IVA incluido)</span>
+                </div>
+
+                <div>
+                    {% if producto.tiene_stock %}
+                        <div class="stock-indicator in-stock" style="font-size: 0.95rem; margin-bottom: 1.5rem;">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>En stock físico ({{ producto.stock }} unidades disponibles para despacho)</span>
+                        </div>
+                    {% else %}
+                        <div class="stock-indicator out-of-stock" style="font-size: 0.95rem; margin-bottom: 1.5rem;">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            <span>Agotado temporalmente en bodega</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                {% if producto.tiene_stock %}
+                    <button class="btn-brand" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: var(--radius-sm);">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <circle cx="8" cy="21" r="1"></circle>
+                            <circle cx="19" cy="21" r="1"></circle>
+                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                        </svg>
+                        <span>Agregar al Carrito</span>
+                    </button>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 0.6rem;">
+                        Despacho inmediato a todo Chile
+                    </p>
+                {% else %}
+                    <button disabled class="btn-secondary" style="width: 100%; padding: 0.85rem; font-size: 1rem; opacity: 0.6; cursor: not-allowed;">
+                        <span>Producto Sin Stock</span>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ESPECIFICACIONES / DESCRIPCIÓN -->
+    <section class="specs-section">
+        <h2 class="specs-title">Descripción y Especificaciones Técnicas</h2>
+        <div class="specs-content">
+            {{ producto.descripcion|default:"No se han registrado especificaciones adicionales para este componente." }}
+        </div>
+    </section>
+</div>
+{% endblock %}

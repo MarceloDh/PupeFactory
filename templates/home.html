@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio — PupeFactory Hardware{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 2rem auto; text-align: center;">
+    <h1 style="font-size: 2.25rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem;">
+        Bienvenido a Pupe<span style="color: var(--brand);">Factory</span>
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem;">
+        Tienda especializada en componentes informáticos y hardware para PC.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem;">
+        <a href="{% url 'catalogo' %}" class="btn-brand" style="padding: 0.75rem 1.75rem; font-size: 1rem;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Explorar Catálogo de Productos</span>
+        </a>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); text-align: left; max-width: 480px; margin: 0 auto; box-shadow: var(--shadow-sm);">
+            <h2 style="font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light);">
+                Sesión Activa
+            </h2>
+            <p style="font-size: 0.875rem; margin-bottom: 0.4rem;"><strong>Usuario:</strong> {{ user.username }}</p>
+            <p style="font-size: 0.875rem; margin-bottom: 0.4rem;"><strong>Rol:</strong> {{ user.get_role_display }}</p>
+            <p style="font-size: 0.875rem; color: var(--text-muted);">
+                {% if user.is_administrador %}
+                    Acceso habilitado al panel Swagger y gestión de productos.
+                {% else %}
+                    Acceso para consultar catálogo y gestionar carro de compras.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

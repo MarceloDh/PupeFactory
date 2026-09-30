@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PupeFactory — Hardware & Componentes PC{% endblock %}</title>
+
+    <!-- Google Fonts: Poppins (400, 500, 600, 700) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos centralizados PupeFactory (Tema Claro Retail) -->
+    <link rel="stylesheet" href="{% static 'css/pupefactory.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- HEADER ESTILO RETAIL HARDWARE (INSPIRADO EN MWAVE) -->
+    <header class="site-header">
+        <div class="header-top">
+            <!-- Wordmark Logo -->
+            <a href="/" class="brand-logo">
+                Pupe<span class="logo-accent">Factory</span>
+            </a>
+
+            <!-- Buscador Protagonista Central -->
+            <div class="header-search">
+                <form method="get" action="{% url 'catalogo' %}" class="search-form">
+                    <button type="submit" class="search-icon-btn" aria-label="Buscar">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                    <input type="text" name="q" class="search-input"
+                        placeholder="Buscar productos, marcas o SKU..."
+                        value="{{ request.GET.q|default:'' }}">
+                </form>
+            </div>
+
+            <!-- Acciones de Usuario y Carro -->
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <div class="action-link" style="cursor: default;">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>{{ user.username }} ({{ user.get_role_display }})</span>
+                    </div>
+
+                    {% if user.is_administrador %}
+                        <a href="/api/docs/" target="_blank" class="action-link" style="color: var(--brand);" title="Documentación Swagger">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                <line x1="4" y1="21" x2="4" y2="14"></line>
+                                <line x1="4" y1="10" x2="4" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="3"></line>
+                                <line x1="20" y1="21" x2="20" y2="16"></line>
+                                <line x1="20" y1="12" x2="20" y2="3"></line>
+                                <line x1="1" y1="14" x2="7" y2="14"></line>
+                                <line x1="9" y1="8" x2="15" y2="8"></line>
+                                <line x1="17" y1="16" x2="23" y2="16"></line>
+                            </svg>
+                            <span>Swagger</span>
+                        </a>
+                    {% endif %}
+
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-link" style="background: none; border: none; cursor: pointer;" title="Cerrar Sesión">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Salir</span>
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="action-link">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Mi cuenta</span>
+                    </a>
+                {% endif %}
+
+                <!-- Carrito de Compras -->
+                <a href="{% url 'catalogo' %}" class="action-cart" title="Carro de Compras">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24">
+                        <circle cx="8" cy="21" r="1"></circle>
+                        <circle cx="19" cy="21" r="1"></circle>
+                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                    </svg>
+                    <span>Carro</span>
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Barra Horizontal de Categorías de Hardware -->
+        <nav class="header-nav">
+            <div class="nav-container">
+                <a href="{% url 'catalogo' %}" class="nav-item nav-all-cats">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <span>Todas las Categorías</span>
+                </a>
+                <a href="{% url 'catalogo' %}?categoria=procesadores" class="nav-item">Procesadores</a>
+                <a href="{% url 'catalogo' %}?categoria=tarjetas-video" class="nav-item">Tarjetas de Video</a>
+                <a href="{% url 'catalogo' %}?categoria=memorias-ram" class="nav-item">Memorias RAM</a>
+                <a href="{% url 'catalogo' %}?categoria=almacenamiento" class="nav-item">Almacenamiento SSD</a>
+                <a href="{% url 'catalogo' %}?categoria=placas-madre" class="nav-item">Placas Madre</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-wrapper">
+        {% if messages %}
+            <div style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                    <div style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; font-size: 0.875rem; 
+                        {% if message.tags == 'error' %}background: var(--danger-bg); border: 1px solid rgba(214,69,69,0.3); color: var(--danger);
+                        {% else %}background: var(--success-bg); border: 1px solid rgba(21,154,99,0.3); color: var(--success);{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER OBLIGATORIO SEGÚN RÚBRICA Y CHECKLIST -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div>
+                <strong>PupeFactory</strong> &copy; {{ ALUMNO_ANIO }} — Tienda de Hardware y Componentes PC
+            </div>
+            <div class="student-badge-group">
+                <div>Alumno: <span>{{ ALUMNO_NOMBRE }}</span></div>
+                <div>Sección: <span>{{ ALUMNO_SECCION }}</span></div>
+                <div>Año: <span>{{ ALUMNO_ANIO }}</span></div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,3 +1,62 @@
 from django.shortcuts import render
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
+from apps.usuarios.permissions import IsAdminRole
 
-# Create your views here.
+# ==============================================================================
+# VISTA PRINCIPAL TEMPORAL (HOME)
+# ==============================================================================
+
+def home_view(request):
+    """
+    Renderiza la página de inicio de PupeFactory.
+    Muestra el estado de la sesión web del usuario y enlaces rápidos.
+    """
+    return render(request, 'home.html')
+
+
+# ==============================================================================
+# VISTAS DE DOCUMENTACIÓN SWAGGER / OPENAPI PROTEGIDAS (SOLO ADMINISTRADOR)
+# ==============================================================================
+# Cumple con el requisito de seguridad estricto de la evaluación:
+# La documentación de la API y el esquema OpenAPI NO son públicos.
+# El backend valida estrictamente que request.user.role sea ADMINISTRADOR.
+# ==============================================================================
+
+class ProtectedSpectacularAPIView(SpectacularAPIView):
+    """
+    Genera el esquema OpenAPI 3.0 (/api/schema/).
+    Protegido en backend con IsAdminRole.
+    """
+    permission_classes = [IsAdminRole]
+
+
+class ProtectedSpectacularSwaggerView(SpectacularSwaggerView):
+    """
+    Renderiza la interfaz gráfica Swagger UI (/api/docs/).
+    Protegido en backend con IsAdminRole.
+    """
+    permission_classes = [IsAdminRole]
+
+
+class ProtectedSpectacularRedocView(SpectacularRedocView):
+    """
+    Renderiza la interfaz gráfica ReDoc (/api/redoc/).
+    Protegido en backend con IsAdminRole.
+    """
+    permission_classes = [IsAdminRole]
+
+
+# ==============================================================================
+# VISTA DE ERROR 404 PERSONALIZADA
+# ==============================================================================
+
+def error_404_view(request, exception=None):
+    """
+    Renderiza la plantilla 404.html personalizada de PupeFactory
+    cuando una ruta web no existe, sin mostrar trazas del servidor.
+    """
+    return render(request, 'errors/404.html', status=404)

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}404 — Página no encontrada | PupeFactory{% endblock %}
+
+{% block content %}
+<div class="error-wrapper">
+    <div class="error-card">
+        <div class="error-badge">
+            <svg class="icon icon-lg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Página no encontrada</h1>
+        <p class="error-desc">
+            El componente o página que estás buscando no existe, ha sido descontinuado o la dirección web es incorrecta.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 0.75rem;">
+            <a href="{% url 'catalogo' %}" class="btn-brand">
+                <svg class="icon icon-sm" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Explorar Catálogo</span>
+            </a>
+            <a href="/" class="btn-secondary">
+                <span>Ir al Inicio</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

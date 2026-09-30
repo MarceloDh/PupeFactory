@@ -19,18 +19,17 @@ load_dotenv(BASE_DIR / '.env')
 # ==============================================================================
 # CONFIGURACIÓN BÁSICA Y SEGURIDAD
 # ==============================================================================
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-pupefactory-secret-key-evaluacion-backend-2-key'
-)
+SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
     if host.strip()
 ]
+if DEBUG and 'testserver' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('testserver')
 
 # ==============================================================================
 # MODELO DE USUARIO PERSONALIZADO (DEFINIDO ANTES DE MIGRAR)
@@ -106,11 +105,11 @@ WSGI_APPLICATION = 'pupefactory.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'pupefactory_db'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': os.environ['DB_PORT'],
     }
 }
 
@@ -179,10 +178,23 @@ SIMPLE_JWT = {
 # ==============================================================================
 SPECTACULAR_SETTINGS = {
     'TITLE': 'PupeFactory API - Hardware & Componentes PC',
-    'DESCRIPTION': 'Documentación de la API REST para PupeFactory (EVA-2 Backend). Acceso restringido a administradores.',
+    'DESCRIPTION': 'Documentación privada de la API REST para PupeFactory (EVA-2 Backend). Acceso restringido a administradores.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+    'SECURITY': [{'BearerAuth': []}],
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    },
 }
 
 # ==============================================================================
@@ -191,3 +203,11 @@ SPECTACULAR_SETTINGS = {
 ALUMNO_NOMBRE = os.environ.get('ALUMNO_NOMBRE', 'Nombre Alumno')
 ALUMNO_SECCION = os.environ.get('ALUMNO_SECCION', 'Sección 1')
 ALUMNO_ANIO = os.environ.get('ALUMNO_ANIO', '2026')
+
+# ==============================================================================
+# REDIRECCIONES DE AUTENTICACIÓN WEB
+# ==============================================================================
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+

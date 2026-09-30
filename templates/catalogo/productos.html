@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de Hardware y Componentes PC — PupeFactory{% endblock %}
+
+{% block content %}
+<div class="catalogo-layout">
+    <!-- SIDEBAR IZQUIERDA DE FILTROS -->
+    <aside class="filters-sidebar">
+        <h2 class="sidebar-title">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            <span>Filtros</span>
+        </h2>
+
+        <form method="get" action="{% url 'catalogo' %}" id="filter-form">
+            <!-- Búsqueda -->
+            <div class="filter-group">
+                <label for="filter-q" class="filter-label">Buscar término</label>
+                <input type="text" name="q" id="filter-q" class="filter-input" placeholder="Nombre o SKU..." value="{{ current_q }}">
+            </div>
+
+            <!-- Categoría -->
+            <div class="filter-group">
+                <label for="filter-cat" class="filter-label">Categoría</label>
+                <select name="categoria" id="filter-cat" class="filter-select">
+                    <option value="">Todas las categorías</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if current_categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Marca -->
+            <div class="filter-group">
+                <label for="filter-marca" class="filter-label">Marca / Fabricante</label>
+                <select name="marca" id="filter-marca" class="filter-select">
+                    <option value="">Todas las marcas</option>
+                    {% for m in marcas %}
+                        <option value="{{ m.id }}" {% if current_marca == m.id|stringformat:"s" %}selected{% endif %}>
+                            {{ m.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Disponibilidad de Stock -->
+            <div class="filter-group">
+                <label for="filter-stock" class="filter-label">Disponibilidad</label>
+                <select name="disponible" id="filter-stock" class="filter-select">
+                    <option value="">Todos los productos</option>
+                    <option value="1" {% if current_disponible == '1' %}selected{% endif %}>En stock</option>
+                    <option value="0" {% if current_disponible == '0' %}selected{% endif %}>Sin stock</option>
+                </select>
+            </div>
+
+            <div class="sidebar-actions">
+                <button type="submit" class="btn-brand">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Aplicar Filtros</span>
+                </button>
+                <a href="{% url 'catalogo' %}" class="btn-secondary">
+                    <span>Limpiar Filtros</span>
+                </a>
+            </div>
+        </form>
+    </aside>
+
+    <!-- ÁREA DE PRODUCTOS (GRID) -->
+    <section class="products-area">
+        <div class="products-header">
+            <div>
+                <h1 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text);">Hardware y Componentes</h1>
+                <span class="products-count">Mostrando <strong>{{ productos|length }}</strong> componentes</span>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            {% for producto in productos %}
+                <article class="product-card">
+                    <div>
+                        <!-- Caja de Imagen -->
+                        <a href="{% url 'producto_detalle' producto.id %}" class="card-image-box">
+                            {% if producto.get_imagen_url %}
+                                <img src="{{ producto.get_imagen_url }}" alt="{{ producto.nombre }}" loading="lazy">
+                            {% else %}
+                                <!-- Placeholder SVG Limpio de Hardware -->
+                                <svg class="icon" style="width: 4rem; height: 4rem; color: #CBD5E1;" viewBox="0 0 24 24">
+                                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                                    <rect x="9" y="9" width="6" height="6"></rect>
+                                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                                </svg>
+                            {% endif %}
+                        </a>
+
+                        <div class="card-brand">{{ producto.marca.nombre }}</div>
+                        <h2 class="card-title">
+                            <a href="{% url 'producto_detalle' producto.id %}">{{ producto.nombre }}</a>
+                        </h2>
+                        <div class="card-sku">SKU: <code>{{ producto.sku }}</code></div>
+                    </div>
+
+                    <div class="card-price-row">
+                        <div class="card-price">${{ producto.precio|floatformat:0 }}</div>
+
+                        {% if producto.tiene_stock %}
+                            <div class="stock-indicator in-stock">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>En stock · {{ producto.stock }} un.</span>
+                            </div>
+                        {% else %}
+                            <div class="stock-indicator out-of-stock">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                <span>Sin stock disponible</span>
+                            </div>
+                        {% endif %}
+
+                        <a href="{% url 'producto_detalle' producto.id %}" class="btn-brand btn-card-action">
+                            <span>Ver Detalle</span>
+                        </a>
+                    </div>
+                </article>
+            {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <svg class="icon" style="width: 3rem; height: 3rem; color: var(--text-muted); margin-bottom: 1rem;" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text);">No se encontraron productos</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Intenta modificando los filtros aplicados o buscando otro término.</p>
+                    <a href="{% url 'catalogo' %}" class="btn-brand" style="display: inline-flex;">Limpiar todos los filtros</a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
