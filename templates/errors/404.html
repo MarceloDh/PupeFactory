@@ -1,32 +1,35 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}404 — Página no encontrada | PupeFactory{% endblock %}
 
 {% block content %}
 <div class="error-wrapper">
     <div class="error-card">
-        <div class="error-badge">
-            <svg class="icon icon-lg" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-        </div>
+        <!-- Foto Oficial Mascota Detective PupeFactory -->
+        <img src="{% static 'images/error_404.png' %}" 
+             alt="Página no encontrada — Mascota PupeFactory" 
+             class="error-img">
+
         <div class="error-code">404</div>
         <h1 class="error-title">Página no encontrada</h1>
         <p class="error-desc">
-            El componente o página que estás buscando no existe, ha sido descontinuado o la dirección web es incorrecta.
+            El componente o página que estás buscando no existe, ha sido movido o la dirección ingresada no es válida.
         </p>
-        <div style="display: flex; justify-content: center; gap: 0.75rem;">
-            <a href="{% url 'catalogo' %}" class="btn-brand">
+        <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="/" class="btn-brand" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Volver al inicio</span>
+            </a>
+            <a href="{% url 'catalogo' %}" class="btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 <span>Explorar Catálogo</span>
-            </a>
-            <a href="/" class="btn-secondary">
-                <span>Ir al Inicio</span>
             </a>
         </div>
     </div>

@@ -95,26 +95,27 @@ a {
     gap: 2rem;
 }
 
-/* Wordmark Logo */
+/* Brand Logo */
 .brand-logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--text);
     display: flex;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.5rem;
     user-select: none;
+    text-decoration: none;
 }
 
-.brand-logo .logo-accent {
-    color: var(--brand);
+.brand-logo-img {
+    height: 42px;
+    width: auto;
+    max-width: 220px;
+    object-fit: contain;
+    display: block;
 }
 
 /* Buscador Protagonista Central */
 .header-search {
     flex: 1;
-    max-width: 600px;
+    max-width: 620px;
     position: relative;
 }
 
@@ -127,30 +128,45 @@ a {
 
 .search-input {
     width: 100%;
-    padding: 0.7rem 1rem 0.7rem 2.75rem;
+    padding: 0.65rem 3.5rem 0.65rem 1.25rem;
     font-size: 0.9rem;
     color: var(--text);
     background: var(--background);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: 9999px;
     outline: none;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .search-input:focus {
     border-color: var(--brand);
     background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(236, 62, 143, 0.12);
 }
 
-.search-icon-btn {
+.search-btn {
     position: absolute;
-    left: 0.85rem;
-    background: none;
+    right: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 38px;
+    border-radius: 9999px;
+    background: var(--brand);
     border: none;
-    color: var(--text-muted);
+    color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.search-btn:hover {
+    background: var(--brand-hover);
+}
+
+.search-btn:active {
+    transform: scale(0.95);
 }
 
 /* Acciones a la derecha (Usuario y Carro) */
@@ -838,4 +854,249 @@ a {
     line-height: 1.6;
     margin-bottom: 2rem;
 }
+
+.error-img {
+    max-width: 280px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 1.5rem auto;
+    display: block;
+    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.12));
+}
+
+/* ==============================================================================
+   CARRUSEL SLIDER DEL PANEL PRINCIPAL (HOME)
+   ============================================================================== */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 2.5rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    background: #000;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 100%;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    position: relative;
+    user-select: none;
+}
+
+.carousel-slide a {
+    display: block;
+    width: 100%;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* Flechas de navegación */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s, transform 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-btn:hover {
+    background: #ffffff;
+    color: var(--brand);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn.prev {
+    left: 1.25rem;
+}
+
+.carousel-btn.next {
+    right: 1.25rem;
+}
+
+/* Indicadores de puntos */
+.carousel-dots {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.6rem;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(4px);
+}
+
+.carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, width 0.2s;
+}
+
+.carousel-dot.active {
+    background: var(--brand);
+    width: 26px;
+    border-radius: 9999px;
+}
+
+/* ==============================================================================
+   CATEGORÍAS CON ICONOS (SECCIÓN 12 DEL SISTEMA DE DISEÑO)
+   ============================================================================== */
+.categories-section {
+    margin-bottom: 2.75rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.15s;
+}
+
+.section-link:hover {
+    color: var(--brand-hover);
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1rem;
+}
+
+.category-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.category-card:hover {
+    border-color: var(--brand);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.category-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--brand-subtle);
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.category-card:hover .category-icon-box {
+    background: var(--brand);
+    color: #fff;
+}
+
+.category-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+/* ==============================================================================
+   BADGES DE CONFIANZA Y BENEFICIOS RETAIL
+   ============================================================================== */
+.trust-badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    padding: 1.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.trust-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.trust-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--brand-subtle);
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.trust-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.trust-subtitle {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+}
+
 

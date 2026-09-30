@@ -20,23 +20,23 @@
     <!-- HEADER ESTILO RETAIL HARDWARE (INSPIRADO EN MWAVE) -->
     <header class="site-header">
         <div class="header-top">
-            <!-- Wordmark Logo -->
-            <a href="/" class="brand-logo">
-                Pupe<span class="logo-accent">Factory</span>
+            <!-- Logo Oficial PupeFactory (PC Hardware Store) -->
+            <a href="/" class="brand-logo" title="PupeFactory — PC Hardware Store">
+                <img src="{% static 'images/logo.png' %}" alt="PupeFactory PC Hardware Store" class="brand-logo-img">
             </a>
 
             <!-- Buscador Protagonista Central -->
             <div class="header-search">
                 <form method="get" action="{% url 'catalogo' %}" class="search-form">
-                    <button type="submit" class="search-icon-btn" aria-label="Buscar">
+                    <input type="text" name="q" class="search-input"
+                        placeholder="Buscar componentes, marcas, categorías o SKU..."
+                        value="{{ request.GET.q|default:'' }}">
+                    <button type="submit" class="search-btn" aria-label="Buscar">
                         <svg class="icon icon-sm" viewBox="0 0 24 24">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </button>
-                    <input type="text" name="q" class="search-input"
-                        placeholder="Buscar productos, marcas o SKU..."
-                        value="{{ request.GET.q|default:'' }}">
                 </form>
             </div>
 
@@ -139,16 +139,14 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- FOOTER OBLIGATORIO SEGÚN RÚBRICA Y CHECKLIST -->
+    <!-- FOOTER OFICIAL PUPEFACTORY -->
     <footer class="site-footer">
         <div class="footer-container">
             <div>
-                <strong>PupeFactory</strong> &copy; {{ ALUMNO_ANIO }} — Tienda de Hardware y Componentes PC
+                <strong>PupeFactory</strong> &copy; 2026 — Tienda de Hardware y Componentes PC
             </div>
-            <div class="student-badge-group">
-                <div>Alumno: <span>{{ ALUMNO_NOMBRE }}</span></div>
-                <div>Sección: <span>{{ ALUMNO_SECCION }}</span></div>
-                <div>Año: <span>{{ ALUMNO_ANIO }}</span></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                Todos los derechos reservados.
             </div>
         </div>
     </footer>

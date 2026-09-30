@@ -4,7 +4,7 @@ Incluye endpoints de autenticación, documentación privada protegida y handler4
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.core.views import (
@@ -34,10 +34,17 @@ urlpatterns = [
     path('api/redoc/', ProtectedSpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
-# Manejador global personalizado para errores 404 en vistas web
+# Manejador global oficial para errores 404 en producción
 handler404 = error_404_view
 
 # Servir archivos multimedia y estáticos en entorno de desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Captura de rutas no encontradas (404 => RE_PATH indicado en pizarra de clase)
+# Permite renderizar la vista 404 personalizada de forma inmediata
+urlpatterns += [
+    re_path(r'^.*$', error_404_view, name='catch_all_404'),
+]
+

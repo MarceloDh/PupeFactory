@@ -12,10 +12,19 @@ from apps.usuarios.permissions import IsAdminRole
 
 def home_view(request):
     """
-    Renderiza la página de inicio de PupeFactory.
-    Muestra el estado de la sesión web del usuario y enlaces rápidos.
+    Renderiza la página principal (Home) de PupeFactory.
+    Carga categorías y productos destacados con imágenes para el panel principal.
     """
-    return render(request, 'home.html')
+    from apps.catalogo.models import Producto, Categoria
+    categorias = Categoria.objects.all().order_by('nombre')
+    productos_destacados = Producto.objects.filter(activo=True).select_related('categoria', 'marca').order_by('-id')[:4]
+    
+    context = {
+        'categorias': categorias,
+        'productos_destacados': productos_destacados,
+    }
+    return render(request, 'home.html', context)
+
 
 
 # ==============================================================================

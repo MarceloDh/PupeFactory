@@ -40,4 +40,6 @@ Este documento recopila las decisiones de arquitectura, modelo y diseño adoptad
 - **Estética E-Commerce Retail (Referencia Mwave):** Se migró desde una apariencia de dashboard oscuro a una interfaz e-commerce retail con fondo claro (`#F5F6F8`), tarjetas blancas (`#FFFFFF`), tipografía Google Fonts `Poppins` y acento de marca rosado (`#EC3E8F`).
 - **Iconografía Vectorial SVG Inline:** Se eliminaron todos los emojis de la interfaz, reemplazándolos por SVGs inline estandarizados tipo Lucide/Heroicons (`stroke-width: 2`, `currentColor`), sin necesidad de añadir librerías JS externas.
 - **Centralización de Estilos en CSS Nativo:** Se consolidó el diseño en `static/css/pupefactory.css` con variables CSS (`:root`), estructurando layout de 2 columnas (sidebar izquierda de filtros + grid derecha de productos), card de producto retail y vistas de login/404 coherentes.
+- **Identidad de Marca y Carrusel Promocional (Panel Principal):** Se integró el logotipo oficial `logo.png` (isotipo felino PF + tipografía comercial) en el encabezado y un carrusel dinámico en `home.html` con 4 banners en alta resolución (`banner_1_gpus.png`, `banner_2_setup.png`, `banner_3_speed.png`, `banner_4_cpus.png`), soporte táctil/teclado, navegación por puntos y enlace directo al catálogo por categorías.
+
 
